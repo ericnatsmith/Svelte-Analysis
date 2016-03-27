@@ -1,0 +1,356 @@
+---
+title: "Svelte Analysis Template"
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  html_document:
+    css: css/rmd_styles.css
+    fig_caption: no
+    theme: spacelab
+    toc: yes
+    
+fontsize: 10pt
+---
+
+\newpage
+
+**Eric N. Smith**, Svelte Analysis Template, 3/26/2016
+=======================================
+
+Analysis Template to be used to ensure replicable analysis code.  Key concepts taken from (tidyR).  This code can be found at (Github).
+
+Note: Many of the automatic functions included depend on having a session designation attached, with cols labeled, for example, "s1.myscale_1".  
+The "s1" indicates session 1, and the "_1" indicates the first item of myscale.  Note that you can add this prefix to any dataset for these functions to work without modification.
+
+# Preliminary Data setup
+
+## Set Knitr functions
+Load all of the libraries needed and supplemental functions.
+
+```{r knitrOptions, echo=FALSE, autodep=TRUE, cache=FALSE}
+## I use these to determine what to print in each section
+rmd_pap <- T # Only findings for the paper (charts etc.)
+rmd_prim <- T # Only primary analysis for paper
+rmd_data <- T # All data analysis
+rmd_all <- F # Print everything
+rmd_cache <- F # Set to F to reset data setup
+rmd_testing <- F # For exploratory / broken code
+rmd_prod <- rmd_testing == F # opposite of testing
+
+# global chunk options
+library("knitr")
+opts_chunk$set(cache=FALSE, autodep=TRUE) # Speeds up re-running analyses
+```
+
+## Libraries and Functions
+
+### Load Libraries and functions
+
+```{r loadLibraries, warning={{rmd_all}}, message={{rmd_all}}, echo={{rmd_all}}}
+# A partial list of libraries to load - comment out unneeded
+library(Hmisc)
+library(xtable)
+library(ggplot2)
+library(ppcor)
+library(lme4)
+library(psych)
+library(plyr)
+library(tidyr)
+library(digest)
+library(lmerTest)
+library(reshape2)
+library(leaps)
+library(MASS)
+library(car)
+library(dplyr)
+library(nFactors)
+library(corrplot)
+```
+
+### Load frequently used functions
+```{r loadFunctions,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+
+Use Reference R code
+```
+
+### Add additional functions
+```{r loadFunctions,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+# Add any additional functions needed for analysis here
+```
+
+## Load and Merge Files
+
+### Load all the files
+```{r loadFiles,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+# setwd("~/myfiles") # Set where data is coming from
+# 
+# ## Example Qualtrics
+# d <- read.csv("Qualtrics.csv",stringsAsFactors=F)
+# d_desc <- d[1,] # save description row
+# d <- d[-1,] # get rid of description row
+# d_desc[["colname"]] # Now you can easily reference code for wording
+```
+
+### Fix up files prior to merge
+```{r loadFiles,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+# This should be reserved only for renaming columns, etc. to be merged
+
+# Rename Vs
+d <- d %>% 
+  rename(id = V5, start_time = V8, end_time = V9) %>%
+  select(-one_of(c("V1","V2","V3","V4","V6","V7","V10")))
+
+names(d1)[-1] <- paste0("s1.",names(d1))[-1] # Add session prefix if merging multiple sessions - ignores first column (id)
+
+```
+
+### Combine the files
+
+```{r mergeFiles,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+# # Mulitple ways to combine multiple data files
+
+# When adding new similar data, plus or minus a few columns
+d <- rbind.fill(d1,d2)
+
+# when merging different datasets by a unique identifier
+d <- full_join(d1, d2, by= "id")
+
+d_orig <- d # designate as d
+d <- smart_cast_numeric(d) # make numeric rows as.numeric
+```
+
+\newpage
+
+### Create new columns for easy referencing and graphing
+
+Here we create new columns that come in handy when graphing and doing data analysis.
+
+```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+# Factor everything you want to factor
+d$gender <- factor(d$gender, levels=c(1,2),labels=(c("Male","Female"))) 
+
+# Rename columns for easy reference
+d <- d %>% 
+  rename(race = s1.race_main, 
+         id = subject_id)
+
+# Make other columns for easy graph usage
+# e.g. d$school_id_short
+```
+
+### Define measures to be used
+```{r newScales, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}}
+# These will be used to create scales automatic reports (e.g. correlation tables)
+var_list_main <- c("scale1","scale2")
+var_list_supp <- c("scale3","scale4")
+
+var_list <- c(var_list_main,var_list_supp)
+```
+
+### Creating Sub-scales
+
+
+```{r subScales,cache={{rmd_cache}}, echo=FALSE, message={{rmd_all}}}
+# Create any manual subscales that will not captured by overall scales automatically later
+```
+
+### Reverse-Coding
+
+```{r reverseCoding,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+# Do any items need to be reverse coded?
+reverse_items <- list() # tell r which items should be reverse coded
+reverse_items[["variable1"]] <- c(4,5,7,8)
+
+for(scale in names(reverse_items)){
+  scale_cols <- names(w)[grep(paste0("s[123].",scale,"_"),names(w))] # get all the cols of the scale
+  max <- max(w[,scale_cols],na.rm=T) # define max of scale
+  min <- min(w[,scale_cols],na.rm=T) # define min of scale
+  for(item_n in reverse_items[[scale]]) {
+    rev_cols <- grep(paste0("s[123].",scale,"_",item_n,"$"),names(w)) # get each of the reverse cols across session
+    w[,rev_cols] <- max - w[,rev_cols] + min # reverse code by subtracting from max
+  }
+  corrplot(cor(w[,scale_cols],use="pairwise.complete.obs"), tl.cex=0.5);
+}
+
+
+# This function can be used to see which items in your scale are negatively correlated with each other.
+corrplot(cor(w[,scale_cols],use="pairwise.complete.obs"), tl.cex=0.5);
+```
+
+## Create new scales and composites (Automatic)
+
+```{r autoScales,cache={{rmd_cache}}, echo=FALSE, message={{rmd_all}}}
+auto_scales <- c(var_list,"other_vars")
+
+for(session in 1:3){
+  for(scale in auto_scales){
+    # warning(scale)
+      scale_cols <- names(w)[grep(paste0("s",session,".",scale,"_"),names(w))] # get all the cols of the scale
+      scale_name <- paste0("s",session,".",scale)
+      w[[scale_name]] <- make_scale(w[,scale_cols])$vec
+  }
+}
+```
+
+## Create new scales and composites (Manual)
+
+### Fix up items to create manual scales
+```{r manualScales,cache={{rmd_cache}}, echo=FALSE, message={{rmd_all}}}
+# Make simple scales of scores
+w$s1.Affective_Balance <- w$s1.PANAS_positive - w$s1.PANAS_negative
+
+# Or do this by z-scores
+w$s1.Affective_Balance <- scale(w$s1.myscale_1) - scale(w$s1.myscale_2)
+
+# or do this by defining scales and using make_scale() function
+scale_cols <- names(w)[c("s1.myscale_1","s1.myscale_2"),names(w))] # get all the cols of the scale
+w$s1.myscale <-  make_scale(w[,scale_cols])$vec
+```
+
+\newpage
+
+## Limiting All Data
+
+Describe how you are limiting data.  This should ideally be done pre-data collection to reduce experimenter degrees of freedom.
+
+
+```{r limitCond,echo={{rmd_data}},message={{rmd_data}}, cache={{rmd_cache}}, warning={{rmd_data}}}
+
+dim_change(w,init=T) #initialize to see how w changes
+
+# Delete rows that meet a certain criteria
+w %>%
+  filter(!is.na(email),
+         survey_time_min > 30)
+
+# Limit data however you intend to, and then see change of w
+dim_change(w)
+```
+
+\newpage
+
+### Make centered and standardized variables
+
+Below we center and standardize all variables, and make new variable with form "variable.name" + "_z"
+
+```{r zedScales,echo={{rmd_data}}, warning={{rmd_data}},message={{rmd_data}},cache={{rmd_cache}}}
+
+# Put any scales and variables you would like z-scored here.  
+zed_cols <- c("var1","var2")
+
+for(col in zed_cols){
+  w[,paste0(col,"_z")] <- scale(w[,col])
+  attr(w[,paste0(col,"_z")],"scaled:center") <- NULL
+  attr(w[,paste0(col,"_z")],"scaled:scale") <- NULL
+}
+# Outputs "var1_z","var2_z"
+```
+
+# Add Data checks
+
+## Overall descriptive information
+How many participants total? How many per condition?  How many by demographics?
+
+# Make deidentified id
+```{r}
+salt <- "temp" # This should be replaced with a secure key before sharing de-identified data
+w$id <- paste(w$id, salt, sep="")
+
+#	digest the salted user_id
+w$id <- unlist(lapply( w$id, function(id){ digest(id, algo="sha256" ) } ))
+```
+# Save Analysis Dataset
+
+Here is where we save the final dataset with all new variable, to be used for open data source.
+```{r, eval={{rmd_data}}, message={{rmd_all}}, warning={{rmd_all}}}
+dim(w)
+```
+
+```{r, eval=FALSE, echo=FALSE, message={{rmd_all}}, warning={{rmd_all}}}
+
+write.csv(w,"~/Downloads/data1.csv",row.names=F)
+```
+
+# Analysis
+Put all analysis and plots here.
+
+### Automatic plots of each item
+```{r, fig.height=5,results='asis', warning=FALSE, message=TRUE, eval=FALSE}
+# For reference.  You'll need to update these charts based on the data you have. But below is an example.
+
+for(var in var_list) {
+  cat("\n\\clearpage\n\\pagebreak\n")
+  cat(paste0("Automated Analysis for ",var,"\n\n"))
+  s1.var <- paste0("s1.",var)
+  s2.var <- paste0("s2.",var)
+  w$s1.var <- w[,s1.var]
+  w$s2.var <- w[,s2.var]
+    
+  temp <- melt(w[!is.na(w$condition),c("id","condition",s1.var,s2.var)],id.vars=c("id","condition"))
+  agg <- temp %>% group_by(condition,variable) %>% summarise(mean = mean(as.numeric(value),na.rm=T),
+              se = se(as.numeric(value)),
+              upper = mean + se*1.96,
+              lower = mean - se*1.96)
+  
+  plot1 <- ggplot(w,aes(x=s1.var)) +
+    geom_histogram(binwidth=.25) +
+    theme_classic() +
+    labs(title = "Pre Histogram",
+       x= paste0("pre-",var))
+  
+#   plot2 <- ggplot(w,aes(x=s1.var, fill=condition)) +
+#     geom_density(alpha=.4,adjust=1.5) +
+#     theme_classic() + 
+#     theme(legend.position = "none") +
+#     labs(title = "Pre Density by Cond",
+#        x= paste0("pre-",var))
+  
+  plot2 <- ggplot(w[!is.na(w$condition),],aes(x=s2.var, fill=condition)) +
+    geom_density(alpha=.4,adjust=1.5) +
+    theme_classic() + 
+    theme(legend.position = "none") +
+    labs(title = "Post Density by Cond",
+       x= paste0("post-",var))
+  
+  plot3 <- ggplot(agg,aes(x=variable,y=mean,fill=condition)) +
+    geom_bar(stat="identity", position="dodge") + 
+    theme_classic() +
+    geom_errorbar(   aes( ymax=upper, ymin=lower ) , 
+                           width   =.25,
+                          linetype="solid",
+                          position=dodge
+  	                    	) + 
+    theme(legend.position = "none") +
+    labs(title = "Pre/Post by Cond",
+       x= paste0("post-",var))
+  
+  plot4 <- ggplot(w[!is.na(w$condition),],aes(x=s1.var, y=s2.var, color=condition)) +
+    geom_smooth(method="lm") + 
+    geom_abline(intercept = 0, slope = 1,alpha=.5, linetype = 2) +
+    theme_classic() + 
+    theme(legend.position = "none") +
+    labs(title = paste0("Condition effect by\nbaseline",var),
+       x= paste0("pre-",var),
+       y= paste0("post-",var))
+
+  plot5 <- ggplot(w[!is.na(w$condition),],aes(x=s1.SMM_G, y=s2.var, color=condition)) +
+    geom_smooth(method="lm") + 
+    theme_classic() + 
+    theme(legend.position = "none") +
+    labs(title = "Condition effect by\nbaseline SMM",
+       x= paste0("pre-SMM_G"),
+       y= paste0("post-",var))
+  
+  plot6 <- ggplot(w[!is.na(w$condition),],aes(x=s1.var, y=s2.var, color=condition)) +
+    geom_smooth() + 
+    theme_classic() + 
+    theme(legend.position = c(.5,.5))
+  
+  multiplot(plot1,plot4,plot2,plot5,plot3,plot6, cols=3)
+
+  cat("\\pagebreak")
+```
+
+
