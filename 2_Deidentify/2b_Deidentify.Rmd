@@ -1,0 +1,63 @@
+---
+fontsize: 10pt
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, echo=F}
+source("~/Svelte-Analysis/1_CoreCode/1a_Settings.R") # All settings needed
+source("~/Svelte-Analysis/1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
+# Requires 2a_LoadMerge file
+
+```
+
+---
+title: "`r ProjectName` Deidentify Files"
+author: "`r AuthorName`, `r AuthorAffiliation`"
+date: "`r format(Sys.time(),format="%B %d, %Y")`"
+---
+
+\newpage
+
+=======================================
+
+# Information 
+
+In this file, we create a de-identified file that could be used for analysis.
+
+## Deidentify
+
+```{r}
+df$id <- unlist(lapply( w$id, function(id){ digest(id, algo="sha256" ) } )) # Deidentify every id column that you'd like to keep.
+
+df[moveme(names(df), "id first")] # Make id first column for simplicity
+
+# Filter out any uneeded identifiable data
+df <- df %>%
+  select(-c(other_id)) %>% # select columns that are unique ids
+  rename(id = deid) %>% # rename id to deid (de-identified)
+  arrange(id) # Arrange the rows so that ordered 
+
+names(df)[grep("id|user|number|unique",names(w))] # ensure we're not forgetting about other id vars
+
+# Also ensure that any open-response data do not have identifiable information.
+# As a first pass of this, ensure they do not refer to any other participants by name
+# # This needs to be hand-checked!
+
+list_of_names <- unique(tolower(c(df$First,df$Last)))
+list_of_names <- gsub(" ","",list_of_names)
+
+pat <- paste0("\\b(", paste0(list_of_names, collapse="|"), ")\\b")  
+df$comment <- tolower(df$comment)
+table(grepl(pat,df$comment)) # How many references to name?
+
+df$comment <- gsub(pat,"[NAME]",df$comment) # replace names with [NAME]
+```
+
+## Write deidentified files
+```{r}
+write.csv(df,paste0(identified_data_folder,"/df_deidentified.csv"),row.names=F)
+```

@@ -1,0 +1,78 @@
+---
+fontsize: 10pt
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, echo=F}
+source("1_CoreCode/1a_Settings.R") # All settings needed
+source("1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
+```
+
+---
+title: "`r ProjectName` Load & Merge Files"
+author: "`r AuthorName`, `r AuthorAffiliation`"
+date: "`r format(Sys.time(),format="%B %d, %Y")`"
+---
+
+\newpage
+
+
+=======================================
+
+# Information 
+
+The purpose of this document is to load and merge all identifiable files.  If no merging or deidentification is require, you may only need to lead the files in this document.
+
+## Load all files
+
+Here we load all files.
+
+```{r loadFiles,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+setwd(deidentified_data_folder) # Set where data is coming from
+
+df1 <- read.csv("file1.csv",stringsAsFactors=F)
+df2 <- read.csv("file1.csv",stringsAsFactors=F)
+```
+
+## Ensure the files can be merged.
+
+Ensure colnames are similar and/or dimensions of files can be combined.
+
+```{r checkMerge,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+# The names are identical in session 1
+table(names(df1) == names(df2))
+dim(df1)
+dim(df2)
+```
+
+## Fix up data
+
+You may need to fix up the data for accurate merging. Do so here.
+
+```{r checkMerge,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+```
+
+### Combine the files
+
+```{r mergeFiles,cache={{rmd_cache}}, echo=FALSE, message={{rmd_all}}}
+# Combine the conditions
+df <- rbind.fill(df1,df2) # combining similar datasets
+df <- full_join(d1, d2, by= "id") # combining mostly unique data across files
+
+df_orig <- df # designate as d
+df <- smart_cast_numeric(df) # make numeric rows as.numeric
+```
+
+### Determine how many were successfully merged and other metrics
+```{r mergeInfo,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+```
+
+### Write any intermediate files as needed
+```{r, echo={{rmd_all}}}
+
+# write.csv(df,paste0(deidentified_data_folder,"/fulldata.csv",row.names=F)
+```

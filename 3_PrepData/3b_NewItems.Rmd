@@ -1,0 +1,48 @@
+---
+fontsize: 10pt
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, echo=F}
+source("~/Svelte-Analysis/1_CoreCode/1a_Settings.R") # All settings needed
+source("~/Svelte-Analysis/1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
+# Requires 2a_LoadMerge file
+
+```
+
+---
+title: "`r ProjectName` New Items"
+author: "`r AuthorName`, `r AuthorAffiliation`"
+date: "`r format(Sys.time(),format="%B %d, %Y")`"
+---
+
+\newpage
+
+=======================================
+
+# Information 
+
+In this file, we create new columns.
+
+### Create new columns
+
+Here we create new columns that come in handy when graphing and doing data analysis.
+
+```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```
+
+### Create new scales and composites (Automatic)
+
+```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```
+
+### Create new scales and composites (Manual)
+
+Some scales need to be made manually, due to inconsitent coding or subscales
+
+```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```

@@ -1,0 +1,38 @@
+---
+fontsize: 10pt
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, echo=F}
+source("1_CoreCode/1a_Settings.R") # All settings needed
+source("1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
+# Requires 2a_LoadMerge file
+
+```
+
+---
+title: "`r ProjectName` Deidentify Files"
+author: "`r AuthorName`, `r AuthorAffiliation`"
+date: "`r format(Sys.time(),format="%B %d, %Y")`"
+---
+
+\newpage
+
+=======================================
+
+# Information 
+
+In this file, we filter data by creating a keep col.
+
+## Filter the data
+
+For now, we are not deleting anything- simply flagging which data should be deleted.
+
+```{r limitCond,echo={{rmd_data}},message={{rmd_data}}, cache={{rmd_cache}}, warning={{rmd_data}}}
+
+w$keep <- T # Default we keep unless otherwise noted
+```

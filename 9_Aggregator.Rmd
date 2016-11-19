@@ -1,0 +1,53 @@
+---
+fontsize: 10pt
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, echo=F}
+source("~/Svelte-Analysis/1_CoreCode/1a_Settings.R") # All settings needed
+```
+
+---
+title: "`r ProjectName` Aggregator"
+author: "`r AuthorName`, `r AuthorAffiliation`"
+date: "`r format(Sys.time(),format="%B %d, %Y")`"
+---
+
+\newpage
+
+
+=======================================
+
+# Information 
+
+The purpose of this document is to aggregate the knitr output from any and all files that you want to run.
+
+## Libraries and functions
+
+Load all of the libraries needed and supplemental functions.
+
+```{r, echo=rmd_all, autodep=TRUE}
+#source("ProjectName_PackagesFunctions.R") # All packages and functions needed
+```
+
+## Define Rmd files to run.
+
+```{r, eval=T} 
+# For example, if you want to re-run all code to transform raw data to an analsis datafile, you would run the code below.
+# setwd(project_folder)
+# ksource("LoadMerge.Rmd") # Load all data and merge together
+# setwd(project_folder)
+# ksource("FilterSave.Rmd") # Filter and save deidentified data - Eric stopped fixing here
+# setwd(project_folder)
+# ksource("NewItems.Rmd") # Create new items - this should be moved after FilterSave...
+
+
+
+#ksource("ExploratoryAnalysis.Rmd")
+```
+
+
