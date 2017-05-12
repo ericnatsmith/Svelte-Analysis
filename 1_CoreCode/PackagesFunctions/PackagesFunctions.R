@@ -43,11 +43,3 @@ if( length(new_packages) )  install.packages(new_packages)
 
 ## load all packages
 lapply(package_list, library, character.only = TRUE)
-
-# Load all support R functions
-RSupportPath <- ""
-files <- list.files(path=RSupportPath,pattern=".R") # Get all .R files
-for(file in files){ 
-  source(paste0(RSupportPath,file)) # source all files in that folder
-}
-
