@@ -263,6 +263,21 @@ auto_scale <- function(scale_bases = NULL, suffix="_[0-9]") {
   assign("scale_info",scale_info)
 }
 
+# merging surveys in which the participant restarted survey
+merge_restarts <- function(df, id_col, early_id, late_id) {
+  df <- df
+  early_row <- df[[id_col]] == early_id
+  early_missing <- is.na( df[early_row,]) | df[early_row,] == "" | df[early_row,] == " "
+  late_row <- df[[id_col]] == late_id
+  df[early_row,early_missing] <- # Get missing of early row
+    df[late_row,early_missing] # Replace with later of late row
+  
+  df <- df %>% 
+    filter_(paste0(id_col," != \'", late_id,"\'")) # delete later row 
+  
+  return(df)
+}
+
 
   # threewaycovar <- function(data, dv, ivs, covar) {
   #   stopifnot(all(c(dv, ivs, covar) %in% names(data)))
