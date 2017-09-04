@@ -1,9 +1,14 @@
 # Project Template for Analysis in R and Rmd.
 
+The purpose of this git repo is to provide a svelt (compact and elegant) analysis template to be used for reproducible analysis.  Key concepts taken from [Tidy Data by Hadley Wickham](https://www.jstatsoft.org/article/view/v059i10), and special thanks to [Mike Frank](https://web.stanford.edu/~mcfrank/), [Dave Paunesku](https://web.stanford.edu/~paunesku/), and [Joe Powers](https://cohenlab.stanford.edu/joseph-t-powers/) for teaching how to put these concepts into practice.
 
-Analysis Template to be used to ensure replicable analysis code.  Key concepts taken from (tidyR).  This code can be found at (Github).
+This code is set-up to 
+ 
+The most recent files can be found at the [Github Repo](https://github.com/ericnatsmith/Svelte-Analysis).
 
 ## Folder Structure
+
+Below you will find a brief introduction to the file structure and purpose of each file. 
 
 ### Core Code
 

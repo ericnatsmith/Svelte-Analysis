@@ -1,7 +1,40 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
+
+# R created files
 *.Rproj
-*/*.pdf
-*/*.html
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.history
+
+# Image/output files unless otherwise specified
+*.pdf
+*.png
+*.docx
+*.html
+*.doc
+*.docx
+*.jpg
+*.gif
+
+# Misc Knit Files
+*.aux
+*.gz
+*.log
+*.rdx
+*.rdb
+*.knit.md
+**/*_cache/*/*
+*cache
+
+# Other
+packrat/lib*/
+packrat/src*/
+.httr-oauth
+
+# Specific file ignore
+
+
+# Specific file keep
+!README.md
+!*style_guide.docx
