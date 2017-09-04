@@ -278,6 +278,18 @@ merge_restarts <- function(df, id_col, early_id, late_id) {
   return(df)
 }
 
+# Mutate in dplyr based on a condition
+## Taken from https://stackoverflow.com/users/516548/g-grothendieck
+mutate_cond <- function(.data, condition, ..., envir = parent.frame()) {
+  condition <- eval(substitute(condition), .data, envir)
+  .data[condition, ] <- .data[condition, ] %>% mutate(...)
+  .data
+}
+
+## Example
+# d <- d %>% 
+#   mutate_cond(id %in% list, # if id is in list
+#               id = paste0(id,"_dup")) # Do something to only those rows
 
   # threewaycovar <- function(data, dv, ivs, covar) {
   #   stopifnot(all(c(dv, ivs, covar) %in% names(data)))
