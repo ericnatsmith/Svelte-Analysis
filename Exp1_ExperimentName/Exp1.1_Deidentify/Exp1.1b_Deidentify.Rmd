@@ -7,11 +7,10 @@ output:
     toc_depth: '3'
 ---
 
-```{r, echo=F}
-source("~/Svelte-Analysis/1_CoreCode/1a_Settings.R") # All settings needed
-source("~/Svelte-Analysis/1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
-# Requires 2a_LoadMerge file
+```{r, include=F}
+source("0_Header.R") # Load Header
 
+### Put any temporary functions here (to be put into function files later)
 ```
 
 ---
@@ -59,5 +58,7 @@ df$comment <- gsub(pat,"[NAME]",df$comment) # replace names with [NAME]
 
 ## Write deidentified files
 ```{r}
-write.csv(df,paste0(identified_data_folder,"/df_deidentified.csv"),row.names=F)
+# write.csv(df,paste0(identified_data_folder,"/df_deidentified.csv"),row.names=F)
+# save(list=c("df"), file = "Support/Rdata/df_deidentified.Rdata")
+
 ```

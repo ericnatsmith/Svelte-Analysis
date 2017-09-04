@@ -7,13 +7,14 @@ output:
     toc_depth: '3'
 ---
 
-```{r, echo=F}
-source("1_CoreCode/1a_Settings.R") # All settings needed
-source("1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
+```{r, include=F}
+source("0_Header.R") # Load Header
+
+### Put any temporary functions here (to be put into function files later)
 ```
 
 ---
-title: "`r ProjectName` Load & Merge Files"
+title: "`r ProjectName` - Load & Merge Files"
 author: "`r AuthorName`, `r AuthorAffiliation`"
 date: "`r format(Sys.time(),format="%B %d, %Y")`"
 ---
@@ -25,7 +26,7 @@ date: "`r format(Sys.time(),format="%B %d, %Y")`"
 
 # Information 
 
-The purpose of this document is to load and merge all identifiable files.  If no merging or deidentification is require, you may only need to lead the files in this document.
+The purpose of this document is to load and merge all identifiable files.  If no merging or deidentification is require, you may only need to read the files in this document.
 
 ## Load all files
 
@@ -36,6 +37,16 @@ setwd(deidentified_data_folder) # Set where data is coming from
 
 df1 <- read.csv("file1.csv",stringsAsFactors=F)
 df2 <- read.csv("file1.csv",stringsAsFactors=F)
+```
+
+## Fix up column names
+
+
+## Fix up data for merging
+
+You may need to fix up the data or create columns for accurate merging. Do so here.
+
+```{r checkMerge,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
 ```
 
 ## Ensure the files can be merged.
@@ -49,12 +60,7 @@ dim(df1)
 dim(df2)
 ```
 
-## Fix up data
 
-You may need to fix up the data for accurate merging. Do so here.
-
-```{r checkMerge,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
-```
 
 ### Combine the files
 
@@ -69,6 +75,8 @@ df <- smart_cast_numeric(df) # make numeric rows as.numeric
 
 ### Determine how many were successfully merged and other metrics
 ```{r mergeInfo,cache={{rmd_cache}}, echo={{rmd_all}}, message={{rmd_all}}}
+
+#Write Function
 ```
 
 ### Write any intermediate files as needed

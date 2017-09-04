@@ -7,11 +7,10 @@ output:
     toc_depth: '3'
 ---
 
-```{r, echo=F}
-source("1_CoreCode/1a_Settings.R") # All settings needed
-source("1_CoreCode/1b_PackagesFunctions.R") # All Packages and Functions
-# Requires 2a_LoadMerge file
+```{r, include=F}
+source("0_Header.R") # Load Header
 
+### Put any temporary functions here (to be put into function files later)
 ```
 
 ---
@@ -28,11 +27,29 @@ date: "`r format(Sys.time(),format="%B %d, %Y")`"
 
 In this file, we filter data by creating a keep col.
 
-## Filter the data
+## Load the data
+```{r}
+# by csv or Rdata
+# df <- read.csv(paste0(deidentified_data_folder,"file.csv"), stringsAsFactors=FALSE)
+
+# load("Support/Rdata/RELMS_201516_cleaned_dfs.Rdata")
+```
+
+## Tag the data
 
 For now, we are not deleting anything- simply flagging which data should be deleted.
 
 ```{r limitCond,echo={{rmd_data}},message={{rmd_data}}, cache={{rmd_cache}}, warning={{rmd_data}}}
 
 w$keep <- T # Default we keep unless otherwise noted
+```
+
+## Filter the data
+
+
+## Write intermediate files
+```{r}
+# write.csv(df,paste0(identified_data_folder,"/df_filtered.csv"),row.names=F)
+# save(list=c("df"), file = "Support/Rdata/df_filtered.Rdata")
+
 ```

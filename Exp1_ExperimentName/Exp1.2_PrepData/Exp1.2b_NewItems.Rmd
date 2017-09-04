@@ -26,28 +26,48 @@ date: "`r format(Sys.time(),format="%B %d, %Y")`"
 
 # Information 
 
-In this file, we create new columns.
-
+In this file, we fix up the data for analysis.
 
 Note: Many of the automatic functions included depend on having a session designation attached, with cols labeled, for example, "s1.myscale_1".  
 The prefix "s1" indicates session 1, and the suffix "_1" indicates the first item of myscale.  Note that you can add this prefix to any dataset for these functions to work without modification.
 
+## Load the data
+```{r}
+# by csv or Rdata
+# df <- read.csv(paste0(deidentified_data_folder,"file.csv"), stringsAsFactors=FALSE)
+
+# load("Support/Rdata/RELMS_201516_cleaned_dfs.Rdata")
+```
+
+### Fix up old columns
+
+Here we fix coding errors etc. not previously addressed
+
+```{r fixcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```
 
 ### Create new columns
 
 Here we create new columns that come in handy when graphing and doing data analysis.
 
-```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```{r newcols1, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
 ```
 
-### Create new scales and composites (Automatic)
+### Create new scales and composites (Functions)
 
-```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```{r scale1, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
 ```
 
 ### Create new scales and composites (Manual)
 
 Some scales need to be made manually, due to inconsitent coding or subscales
 
-```{r newcols, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```{r scale2, echo={{rmd_data}}, cache={{rmd_cache}}, message={{rmd_all}}, warning={rmd_all}} 
+```
+
+## Write analysis files
+```{r}
+# write.csv(df,paste0(identified_data_folder,"/df_prepped.csv"),row.names=F)
+# save(list=c("df"), file = "Support/Rdata/df_prepped.Rdata")
+
 ```

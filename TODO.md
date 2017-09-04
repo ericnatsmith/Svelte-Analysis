@@ -2,4 +2,5 @@
 
 1. Create a “Do matching” and “Check matching” function, which will create files to hand-match, and check the matches
 2. Create a close-matching algorithm to easily merge datafiles
+3. Go through Random-Stuff.Rmd
 

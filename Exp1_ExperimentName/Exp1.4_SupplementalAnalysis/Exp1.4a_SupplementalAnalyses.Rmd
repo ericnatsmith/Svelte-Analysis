@@ -1,0 +1,52 @@
+---
+fontsize: 10pt
+geometry: margin=0.5in
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r, include=F}
+source("0_Header.R") # Load Header
+
+### Put any temporary functions here (to be put into function files later)
+```
+
+---
+title: "`r ProjectName` Supplemental Analyses"
+author: "`r AuthorName`, `r AuthorAffiliation`"
+date: "`r format(Sys.time(),format="%B %d, %Y")`"
+---
+
+\newpage
+
+=======================================
+
+# Information 
+
+Here we store our main hypotheses
+
+## Load the data
+```{r}
+# by csv or Rdata
+# df <- read.csv(paste0(deidentified_data_folder,"file.csv"), stringsAsFactors=FALSE)
+
+# load("Support/Rdata/RELMS_201516_cleaned_dfs.Rdata")
+```
+
+## Analyze the data
+
+This is going to look pretty different for each project, but it should follow the same basic structure of clear headings.  A good way to do that is organize by test, question, or hypothesis
+
+## H.1) My first hypothesis is X
+
+```{r}
+
+```
+
+
+## Write files for reports
+```{r}
+# save(list=c("df"), file = "Support/Rdata/Exp1.4a.Rdata")
+```
