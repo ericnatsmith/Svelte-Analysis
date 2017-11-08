@@ -47,7 +47,7 @@ opts_chunk$set(cache=F, autodep=FALSE)
 ################## OR remote files
 # You can either use the local files, or load the most up-to-date remote files
 require(RCurl) # In order to load R code from online
-url_folder <- "https://raw.githubusercontent.com/ericnatsmith/Svelte-Analysis/master/1_CoreCode/PackagesFunctions/" # Clarify the folder
+url_folder <- "https://raw.githubusercontent.com/ericnatsmith/Svelte-Analysis/master/Support/Functions/" # Clarify the folder
 
 init_script <- "PackagesFunctions.R" # Clarify the main script
 script <- getURL(paste0(url_folder,init_script), ssl.verifypeer = FALSE)

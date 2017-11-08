@@ -2,61 +2,8 @@
 ## set intutive table names to replace variable names in your table
 fix_names <- function(x){
   x %>%
-    str_replace("s1.r.schs_1", "People at school value my efforts.") %>%
-    str_replace("s1.r.schs_2.r", "Sometimes it seems like nobody at school would notice if I was struggling. (r)") %>%
-    str_replace("s1.r.schs_3", "I know that someone at school will always be there for me when I need help.") %>%
-    str_replace("s1.r.schs_4.r", "I worry that people at school will sometimes let me down when I need them. (r)") %>%
-    str_replace("s1.r.schp_1", "I can rely on my teachers.") %>%
-    str_replace("s1.r.schp_2", "My teachers will do something if they say they will do it.") %>%
-    str_replace("s1.r.schp_3", "My teachers always follow through with plans that they make with us.") %>%
-    str_replace("s1.rel.school", "School Dependability") %>%
-    str_replace("s1.rel.home", "Home Dependability") %>%
-    str_replace("s1.attach_concerns", "Attachment Concerns") %>%
-    str_replace("s1.affbal_school", "School Well-being") %>%
-    str_replace("s1.r.invest", "Responsive Investment") %>%
-    str_replace("s1.r.schi", "Expected School Payoff") %>%
-    str_replace("r.schi", "Expected School Payoff") %>%
-    str_replace("s1.aca.sc", "Academic Self-Control") %>%
-    str_replace("s1.bhv.all", "Neg. School Behavior") %>%
-    str_replace("s1.past.gpa", "Past GPA") %>%
-    str_replace("s1.pred.gpa", "Predicted GPA") %>%
-##### Study 2 and 3 #####
-    str_replace("ses_all", "SES") %>%
-    str_replace("dep_school", "School Dependability") %>%
-    str_replace("dep_home", "Home Dependability") %>%
-    str_replace("s1.bjw", "Belief in Just World") %>%
-    str_replace("^scS", "Academic Self-Control") %>%
-    str_replace("rela.tch", "Caring Teachers") %>%
-    str_replace("motd.r", "Respectful Teachers") %>%
-    str_replace("aca.sc", "Academic Self-Control") %>%
-    str_replace("effort_1", "Expected Effort") %>%
-    str_replace("PassiveControl", "Passive\nControl") %>%
-    str_replace("ActiveControl", "Active\nControl") %>%
-    str_replace("mid_depend", "Teacher-Specific\nDependability") %>%
-    str_replace("mid_goto", "Teacher-Specific\nApproachability") %>%
-    str_replace("mid_attn", "Classroom-Specific\nAttention") %>%
-    str_replace("r.schs_", "School Teacher Dependability_") %>%
-    str_replace("r.schp_", "School Person Dependability_") %>%
-    str_replace("motd_", "Teacher Respect_") %>%
-    
-    
-    
-    
-    
-  
-    # str_replace(".Intercept.", "Intercept") %>%
-    # ## rename conditions
-    # str_replace("am_f", "Transmission Type") %>%
-    # str_replace("am_cc", "Transmission Type (Constrast)") %>%
-    # str_replace("origin_f", "Country of Origin") %>%
-    # str_replace("wt", "Vehicle Weight") %>%
-    # str_replace("hp", "Horse Power") %>%
-    # str_replace("se", "SE") %>%
-    # str_replace("sd", "SD") %>%
-    # # Clean up special characters
-    # str_replace_all(".MC", " (MC)") %>%
-    # str_replace_all(".MCmsd", " (MC - 1SD)") %>%
-    # str_replace_all(".MCpsd", " (MC + 1SD)") %>%
+    str_replace("orig_1", "New Wording 1") %>%
+    str_replace("orig_2", "New Wording 2") %>%
     str_replace_all(":", " x ")
 }
 
@@ -247,6 +194,25 @@ reg_btp <- function(m, v, beta="b"){
 # # Example
 #     m <- lm(mpg ~ wt, mtcars)
 #     reg_btp(m, 'wt')
+
+reg_fp <- function(m, v = NULL, compare = F, row = nrow(m)){
+  if(compare) {
+    paste0('F(',m$Df[row],', ',m$Res.Df[row],') = ', round(m$F[row],2),
+           ', *p* ',  format_pval(round(m$"Pr(>F)"[row],2)))
+  } else {
+
+    paste0('F(',m$Df[1],', ',m$Df[row],') = ', round(m$"F value"[1],2),
+           ', *p* ',  format_pval(round(m$"Pr(>F)"[1],2)))
+  }
+}
+# 
+# # Example
+#     model1 <- lm(mpg ~ as.factor(cyl), mtcars)
+#     model2 <- lm(mpg ~ as.factor(cyl)*wt, mtcars)
+#     m1 <- anova(model1)
+#     m2 <- anova(model1,model2)
+#     reg_fp(m1, compare=F)
+#     reg_fp(m2, compare=T)
 
 # ########################################################################
 # ########################################################################
@@ -485,7 +451,7 @@ print_ss_table <- function(x,align_val = "r") {
 
 
 multi_bar_compare <- function(graph = g, data = dq, dv = 'mid1_depend', order=NA,
-                              bars = NA,y_offset = rep(0,length(bars)/2)) {
+                              bars = NA, fins = .1, p_offset = .2, y_offset = rep(0,length(bars)/2)) {
   graph_name <- graph
   graph <- get(graph)
   bars <- matrix(bars,ncol=2,byrow=T)
@@ -498,14 +464,14 @@ multi_bar_compare <- function(graph = g, data = dq, dv = 'mid1_depend', order=NA
                           xmax=bs$bar2,             # end point
                           x=1,                      # 1 is a place holder
                           y=bs$y + y_offset[i],                   # height of your bar.
-                          height=.1                 # height of error bar "fins"
+                          height= fins                 # height of error bar "fins"
     )
     
     # automatically add the annotation to the plot
     pval_text <- annotate("text",
                           # x-axis dim for text:
                           x=bs$x,
-                          y=bs$y + .2 + y_offset[i], # add space between line and text
+                          y=bs$y + p_offset + y_offset[i], # add space between line and text
                           label=paste0("p ", format_pval(bs$p)),
                           size=3
     )

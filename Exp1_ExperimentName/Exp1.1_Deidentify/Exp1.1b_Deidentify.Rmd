@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r, include=F}
-source("0_Header.R") # Load Header
+source(paste0(project_folder,"/Support/0_Header.R") # Load Header
 
 ### Put any temporary functions here (to be put into function files later)
 ```
