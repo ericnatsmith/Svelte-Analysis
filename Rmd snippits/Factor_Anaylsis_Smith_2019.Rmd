@@ -1,0 +1,156 @@
+---
+  title: "Factor_Analysis_Smith_2019.Rmd"
+  author: "Eric N. Smith"
+---
+
+## Exploratory Factor Analysis
+```{r}
+# adapted from https://www.statmethods.net/advstats/factor.html
+# and https://www.r-bloggers.com/exploratory-factor-analysis-in-r/
+
+# Load required libraries
+require("psych")
+require("nFactors")
+require("dplyr")
+require("lavaan")
+
+corstarsl <- function(x){ 
+  # from https://myowelt.blogspot.com/2008/04/beautiful-correlation-tables-in-r.html
+  require(Hmisc) 
+  x <- as.matrix(x) 
+  R <- rcorr(x)$r 
+  p <- rcorr(x)$P 
+  
+  ## define notions for significance levels; spacing is important.
+  mystars <- ifelse(p < .001, "***", ifelse(p < .01, "** ", ifelse(p < .05, "* ", " ")))
+  
+  ## trunctuate the matrix that holds the correlations to two decimal
+  R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1] 
+  
+  ## build a new matrix that includes the correlations with their apropriate stars 
+  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x)) 
+  diag(Rnew) <- paste(diag(R), " ", sep="") 
+  rownames(Rnew) <- colnames(x) 
+  colnames(Rnew) <- paste(colnames(x), "", sep="") 
+  
+  ## remove upper triangle
+  Rnew <- as.matrix(Rnew)
+  Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
+  Rnew <- as.data.frame(Rnew) 
+  
+  ## remove last column and return the matrix (which is now a data frame)
+  Rnew <- cbind(Rnew[1:length(Rnew)-1])
+  return(Rnew) 
+}
+```
+
+```{r}
+df <- bfi # load example data (from Psych package)
+
+  
+# I generally like to first reverse code all reverse-coded items and label as such
+df <- df %>%
+  mutate(A1 = 7 - A1,
+         C4 = 7 - C4,
+         E3 = 7 - E3,
+         E4 = 7 - E4) %>%
+  rename(A1.r = A1,
+         C4.r = C4,
+         E3.r = E3,
+         E4.r = E4)
+
+
+
+vars <- names(df[grep("[ACE][1-4]", names(df))]) # define which variables you want to do exploratory factor analysis on
+# vars <- c("A1","A2","A3","A4","C1","C2","C3","C4","E1","E2","E3","E4")
+
+
+df_fa <- df[complete.cases(df[,vars]),vars] # unless you have sparse or small dataset, I would recommend only getting full rows
+
+describe(df_fa[,vars]) # Does everything look reasonable in the data?
+
+corstarsl(df_fa[,vars]) # Let's check out the correlations between items
+
+ev <- eigen(cor(df_fa,use="pairwise.complete.obs")) # get eigenvalues
+ap <- parallel(subject=nrow(df_fa),var=ncol(df_fa),
+               rep=100,cent=.05)
+nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+par(cex=1)
+
+# Look at eigenvalues for each factor (general rule of thumb is keep those > 1)
+ev$values
+
+# Find percent variance that each factor take up
+sum <- sum(ev$values)
+ev$values/sum
+
+plotnScree(nS) # How many factors should there be? (visual analysis) - looks like 3
+```
+
+```{r}
+# How do they break apart given this number of factors? (Let's try 2)
+fac2 <- fa(df_fa,nfactors=2, rotate="oblimin") # Non-orthogonal rotation (allows correlation between factors)
+fa.diagram(fac2, simple=F, cut = .3)
+fac2$loadings
+
+# But shouldn't there be three?
+
+fac3 <- fa(df_fa,nfactors=3, rotate="oblimin")
+fa.diagram(fac3)
+fac3$loadings
+fa.diagram(fac3, simple=F, cut = .3)
+
+# For fun, let's assume that the factors are orthogonal (correlations = 0)
+fac3_ortho <- fa(df_fa,nfactors=3, rotate="varimax") # Non-orthogonal rotation
+fa.diagram(fac3_ortho, simple=F, cut = .3)
+fac3_ortho$loadings
+```
+
+# Confirmatory Factor analysis
+```{r}
+# See http://lavaan.ugent.be/tutorial/cfa.html
+
+model <- '
+Extraversion =~ E1 + E2 + E3.r + E4.r
+Agreeableness =~ A1.r + A2 + A3 + A4
+Conscientiousness =~ C1 + C2 + C3 + C4.r
+'
+
+fit<-cfa(model, data = df_fa)
+summary(fit, fit.measures =TRUE)
+# RMSEA = 0.067; CFI = 0.911 - looks decent
+
+# Maybe people respond differently to reverse-coded items, which is screwing things up?
+model2 <- '
+Extraversion =~ E1 + E2 + E3.r + E4.r
+Agreeableness =~ A1.r + A2 + A3 + A4
+Conscientiousness =~ C1 + C2 + C3 + C4.r
+Reverse =~ E3.r + E4.r + A1.r + C4.r
+'
+
+fit2<-cfa(model2, data = df_fa)
+summary(fit2, fit.measures =TRUE)
+# RMSEA = 0.059; CFI = 0.942 - looks even better
+
+# Let's try a shittier model
+model3 <- '
+Extraversion =~ E1 + E2 + E3.r + E4.r
+Agreeableness =~ A1.r + A2 + A3 + A4 + C3 + C4.r
+Conscientiousness =~ C1 + C2 
+'
+
+fit3<-cfa(model3, data = df_fa)
+summary(fit3, fit.measures =TRUE)
+# RMSEA = 0.086; CFI = 0.78 - looking worse...
+```
+
+# Getting scores
+```{r}
+summary(fit)
+scores <- predict(fit)
+rows_kept <- inspect(fit, "case.idx")
+df_fa$Agreeableness <-scores[,'Agreeableness'] # factor scores centered around 0
+df_fa$Conscientiousness <-scores[,'Conscientiousness'] # factor scores centered around 0
+
+cor.test(df_fa$Agreeableness,df_fa$Conscientiousness)
+```
