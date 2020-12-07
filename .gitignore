@@ -7,6 +7,9 @@
 *.Ruserdata
 *.history
 
+# Finder files 
+*.DS_Store
+
 # Image/output files unless otherwise specified
 *.pdf
 *.png
