@@ -102,14 +102,14 @@ es_lineplot <- function(df,x,y,id=NA,split=NA, simple=F) {
     }
     
     
-    ggplot(agg[!is.na(agg$x) & !is.na(agg$split),],aes(x=x,y=mean,color=split, group=split,)) + 
-      #geom_point() +
-      geom_line(size=1.5,position=position_dodge(width=0.1),alpha=.9) +
+    ggplot(agg[!is.na(agg$x) & !is.na(agg$split),],aes(x=x,y=mean,color=split, group=split)) + 
+      geom_point() +
+      geom_line(size=1.5) +
       theme_classic() +
       geom_errorbar(aes( ymax=upper, ymin=lower ) ,
-                    size=2, width =.25,position=position_dodge(width=0.1),alpha=.9) +
+                    size=2, width =.25, alpha=.7) +
       labs(x=x,y=y) +
-      scale_color_grey(guide = guide_legend(title = split))
+      scale_color_discrete(guide = guide_legend(title = split))
       
   }
 }

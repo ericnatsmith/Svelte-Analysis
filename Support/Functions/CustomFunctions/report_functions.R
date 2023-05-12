@@ -1,13 +1,4 @@
 
-## set intutive table names to replace variable names in your table
-fix_names <- function(x){
-  x %>%
-    str_replace("orig_1", "New Wording 1") %>%
-    str_replace("orig_2", "New Wording 2") %>%
-    str_replace_all(":", " x ")
-}
-
-
 # Easy change to percent
 as.pcnt <- function(x){paste0(x*100,"%")}
 
@@ -40,6 +31,7 @@ reg_rp <- function(m){
          ', *p* ',  r_pval(m) 
   )
 }
+
 
 # # Example
 # m <- with(mtcars,cor.test(mpg, wt))
@@ -123,8 +115,6 @@ cor_partial_p <- function(df,item_main,x,items_controlled,output="pval") {
   cor_partial(df,item_main,x,items_controlled,output="pval")
 }
 
-make_pcor_table <- 
-
 dim_change <- function(x,init=F) {
   y <- nrow(x)
   z <- ncol(x)
@@ -176,6 +166,25 @@ pval <- function(m, v, stat="Pr(>|t|)", raw=FALSE){
       }
 }
 
+# Move
+dfval <- function(m, v, stat="df"){
+  # create table of stats from summary of model
+  cm <- m %>% summary() %>% coef()
+  # pull the stat you need from the table
+  x <- cm[v, stat]
+  # round that stat to two decimal places
+  round(x, 0)
+}
+
+CIvals <- function(m, v, stat=c("2.5 %","97.5 %")){
+  # create table of stats from summary of model
+  cm <- m %>% confint()
+  # pull the stat you need from the table
+  x <- cm[v, stat]
+  # round that stat to two decimal places
+  broman::myround(x, 2)
+}
+
 # # Examples
 #     m <- lm(mpg ~ qsec, mtcars)
 #     bval(m, "qsec")
@@ -190,29 +199,26 @@ reg_btp <- function(m, v, beta="b"){
          ', *p* ',  pval(m, v)
          )
 }
+
+
+reg_btp_CIs <- function(m, v, beta="b"){
+  if(class(m) != "lmerModLmerTest") {
+    paste0(beta,' = ', bval(m, v),
+           ', *t*(', m$df, ') = ', tval(m, v),
+           ', *p* ',  pval(m, v),
+           ", 95% CI [",CIvals(m,v)[1],", ",CIvals(m,v)[2],"]"
+    )} else {
+      paste0(beta,' = ', bval(m, v),
+             ', *t*(', dfval(m,v), ') = ', tval(m, v),
+             ', *p* ',  pval(m, v),
+             ", 95% CI [",CIvals(m,v)[1],", ",CIvals(m,v)[2],"]"
+      )}
+}
+
 # 
 # # Example
 #     m <- lm(mpg ~ wt, mtcars)
 #     reg_btp(m, 'wt')
-
-reg_fp <- function(m, v = NULL, compare = F, row = nrow(m)){
-  if(compare) {
-    paste0('F(',m$Df[row],', ',m$Res.Df[row],') = ', round(m$F[row],2),
-           ', *p* ',  format_pval(round(m$"Pr(>F)"[row],2)))
-  } else {
-
-    paste0('F(',m$Df[1],', ',m$Df[row],') = ', round(m$"F value"[1],2),
-           ', *p* ',  format_pval(round(m$"Pr(>F)"[1],2)))
-  }
-}
-# 
-# # Example
-#     model1 <- lm(mpg ~ as.factor(cyl), mtcars)
-#     model2 <- lm(mpg ~ as.factor(cyl)*wt, mtcars)
-#     m1 <- anova(model1)
-#     m2 <- anova(model1,model2)
-#     reg_fp(m1, compare=F)
-#     reg_fp(m2, compare=T)
 
 # ########################################################################
 # ########################################################################

@@ -1,5 +1,5 @@
 # TITLE: Load Packages and Functions
-# Acknowledgements to Joe Powers and Dave Paunesku
+# Acknowledgments to Joe Powers and Dave Paunesku
 
 # packages ----------------------------------------------------------------
 # List of needed packages
@@ -9,25 +9,28 @@ package_list <- c(
   'broman', # for myround( to control digit length
   'car', # for Anova
   'corrplot', # Easy correlaiton plot
+  'cowplot',
   'digest', # for deidentifying data
   #'effects', # for covariate adjusted means
   'ggplot2',
-  #'grid',
+  'grid',
   'gridExtra', # for grid.arrange
   #'gtools',  # for smartbind
   'Hmisc',
   'knitr',
   'lme4',
   #'MASS'
-  #'magrittr', # for pipes %>%
+  'lubridate', # easy time manipulations
   'lmerTest',
+  'moments', # skew and kurtosis
   'nFactors', # For Screeplots and factor analysis
   #'pander',
   'psych', # for alphas
   'ppcor',
   'reshape2',   ### SHOULD BE REPLACED BY DPLYR FUNCTIONS
-  #'Rmisc',   # for summarySE
+  'Rmisc',   # for summarySE AND multiplot
   #'splitstackshape', # for text to columns
+  'sjstats',
   'stringr',
   'tidyr',
   'xtable',

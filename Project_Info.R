@@ -5,7 +5,7 @@
 AuthorName <- "Eric N. Smith"
 AuthorAffiliation <- "University of Texas at Austin"
 ProjectName <- "Svelte Analysis Template"
-ProjectKey <- "Svelte"
+ProjectKey <- "Svelte-Analysis"
 
 # Here we'll want to set up where files will be loaded from and saved.
 
@@ -14,6 +14,8 @@ identified_data_folder <- "path_to_identified_data_folder/" # Where your raw dat
 deidentified_data_folder <- "path_to_deidentified_data_folder/" # Where to save deidentified data to run analyses on
 
 temporary_folder <- "~/Downloads/"
+
+report_folder <- "path_to_output_folder/"
 
 svelte_folder <- "~/Svelte-Analysis/Support/Functions/" # Only needed if running locally
 
