@@ -115,7 +115,7 @@ es_lineplot <- function(df,x,y,id=NA,split=NA, simple=F) {
 }
 
 
-es_barplot <- function(df,x,y,id=NA,split=NA, keep_agg = F,split_bars = F) {
+es_barplot <- function(df,x,y,id=NA,split=NA, keep_agg = F,split_bars = F, ...) {
   if(is.na(id)){
     df$id <- 1:nrow(df)# if no id, assume rowwise
     id <- "id"

@@ -1,19 +1,40 @@
 
 # Easy change to percent
-as.pcnt <- function(x){paste0(x*100,"%")}
+as.pcnt <- function(x) {
+  percent <- x * 100  # Multiply input by 100 to get percentage
+  paste0(percent, "%")  # Combine percentage value and "%" symbol into a string
+}
 
 # Remove 0 before decimal for rs, alphas, etc.
 rm_0 <- function(x){sub("^0","",as.character(x))}
 
 # assorted custom functions  -------------------------------------------------
 
+
 format_pval <- function(x){
   if (is.na(x) ) return(x)
   if (x < .001) return(paste('<', '.001'))
   if (x > .1) return(paste('=', rm_0(round(x,2))))
-  paste('=', rm_0(round(x,3)))   # 3 = no. of digits to round p value to if .001 < p < .250.
+  paste('=', rm_0(round(x,3)))   # 3 = no. of digits to round p value to if .001 < p < .250
 }
 
+
+## Playing with OpenAI commenting/improving
+# format_pval <- function(x) {
+#   if (is.na(x)) return(x)  # If input is missing, return missing value
+#   if (x < .001) return('< .001')  # If p-value is less than .001, return "< .001"
+#   if (x > .1) return(paste('= ', round(x, 2)))  # If p-value is greater than .1, return "= " and rounded p-value to 2 digits after the decimal
+#   paste('= ', round(x, 3))  # Otherwise, return "= " and rounded p-value to 3 digits after the decimal
+# }
+#
+# # edited openai function
+#
+# format_pval <- function(x) {
+#   if (is.na(x)) return(x)  # If input is missing, return missing value
+#   if (x < 0.001) return('< .001')  # If p-value is less than .001, return "< .001"
+#   if (x > 0.1) return(paste('= ', sub("^0", "", as.character(round(x, 2)))))  # If p-value is greater than .1, return "= " and rounded p-value to 2 digits after the decimal with leading zeros removed
+#   paste('= ', sub("^0", "", as.character(round(x, 3)))))  # Otherwise, return "= " and rounded p-value to 3 digits after the decimal with leading zeros removed
+# }
 # # examples:
 # .0001  %>%  format_pval
 # .016  %>%  format_pval
@@ -28,7 +49,7 @@ r_pval <- function(m){
 
 reg_rp <- function(m){
   paste0('*r*(', m$parameter, ') = ', broman::myround(m$estimate,2),
-         ', *p* ',  r_pval(m) 
+         ', *p* ',  r_pval(m)
   )
 }
 
@@ -42,57 +63,57 @@ as.mystars <- function(p) {
   ifelse(p < .001, "***", ifelse(p < .01, "** ", ifelse(p < .05, "* ", " ")))
 }
 
-corstarsl <- function(x){ 
-  require(Hmisc) 
-  x <- as.matrix(x) 
-  R <- rcorr(x)$r 
-  p <- rcorr(x)$P 
-  
+corstarsl <- function(x){
+  require(Hmisc)
+  x <- as.matrix(x)
+  R <- rcorr(x)$r
+  p <- rcorr(x)$P
+
   ## define notions for significance levels; spacing is important.
   mystars <- ifelse(p < .001, "***", ifelse(p < .01, "** ", ifelse(p < .05, "* ", " ")))
-  
+
   ## trunctuate the matrix that holds the correlations to two decimal
-  R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1] 
-  
-  ## build a new matrix that includes the correlations with their apropriate stars 
-  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x)) 
-  diag(Rnew) <- paste(diag(R), " ", sep="") 
-  rownames(Rnew) <- colnames(x) 
-  colnames(Rnew) <- paste(colnames(x), "", sep="") 
-  
+  R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1]
+
+  ## build a new matrix that includes the correlations with their apropriate stars
+  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x))
+  diag(Rnew) <- paste(diag(R), " ", sep="")
+  rownames(Rnew) <- colnames(x)
+  colnames(Rnew) <- paste(colnames(x), "", sep="")
+
   ## remove upper triangle
   Rnew <- as.matrix(Rnew)
   Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
-  Rnew <- as.data.frame(Rnew) 
-  
+  Rnew <- as.data.frame(Rnew)
+
   ## remove last column and return the matrix (which is now a data frame)
   Rnew <- cbind(Rnew[1:length(Rnew)-1])
-  return(Rnew) 
+  return(Rnew)
 }
 
-corstarsl2 <- function(y,z){ 
-  require(Hmisc) 
-  x <- as.matrix(cbind(y,z)) 
-  R <- rcorr(x)$r 
-  p <- rcorr(x)$P 
-  
+corstarsl2 <- function(y,z){
+  require(Hmisc)
+  x <- as.matrix(cbind(y,z))
+  R <- rcorr(x)$r
+  p <- rcorr(x)$P
+
   ## define notions for significance levels; spacing is important.
   mystars <- ifelse(p < .001, "***", ifelse(p < .01, "** ", ifelse(p < .05, "* ", " ")))
-  
+
   ## trunctuate the matrix that holds the correlations to two decimal
-  R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1] 
-  
-  ## build a new matrix that includes the correlations with their apropriate stars 
-  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x)) 
-  diag(Rnew) <- paste(diag(R), " ", sep="") 
-  rownames(Rnew) <- colnames(x) 
-  colnames(Rnew) <- paste(colnames(x), "", sep="") 
-  
+  R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1]
+
+  ## build a new matrix that includes the correlations with their apropriate stars
+  Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x))
+  diag(Rnew) <- paste(diag(R), " ", sep="")
+  rownames(Rnew) <- colnames(x)
+  colnames(Rnew) <- paste(colnames(x), "", sep="")
+
   ## remove last column and return the matrix (which is now a data frame)
   a <- ncol(y)
   b <- ncol(z)
   Rnew <- Rnew[(a+1):(a+b),1:a]
-  return(Rnew) 
+  return(Rnew)
 }
 
 ## Make a partial correlation table
@@ -102,10 +123,10 @@ cor_w_sch_p <- function(x){cor.test(x,d$s1.rel.school)$p.value}
 cor_partial <- function(df,item_main,x,items_controlled,output="estimate"){
   mydata <- df[,c(item_main,items_controlled)]
   mydata <- cbind(x,mydata) # Add raw data column to data
-  
+
   # See if columns are duplicated (can't get name from summarize_each)
   mydata <- mydata[!duplicated(lapply(mydata, digest))] # And delete if same
-  
+
   mydata <- mydata[complete.cases(mydata),]
   if(output == "pval"){pcor(mydata)$p.value[item_main,"x"]} else {
     pcor(mydata)$estimate[item_main,"x"]
@@ -193,7 +214,7 @@ CIvals <- function(m, v, stat=c("2.5 %","97.5 %")){
 #     m$df
 
 reg_btp <- function(m, v, beta="b"){
-  
+
   paste0(beta,' = ', bval(m, v),
          ', *t*(', m$df, ') = ', tval(m, v),
          ', *p* ',  pval(m, v)
@@ -215,7 +236,7 @@ reg_btp_CIs <- function(m, v, beta="b"){
       )}
 }
 
-# 
+#
 # # Example
 #     m <- lm(mpg ~ wt, mtcars)
 #     reg_btp(m, 'wt')
@@ -354,7 +375,7 @@ print_ss_table <- function(x,align_val = "r") {
 
     # ## Example of function in use:
     # dfc <- summstat(mtcars, "mpg", c("vs", "cyl"))
-    # 
+    #
     # ## View your summary stats
     # dfc %>% subset(select = -c(predictor, barorder)) %>% print_ss_table
 
@@ -363,9 +384,9 @@ print_ss_table <- function(x,align_val = "r") {
       if(is.na(order)){
         data$order <- seq(1:nrow(data))
       }
-      
+
       rownames(data) <- data$predictor
-      
+
       # label important stats
       mn1 <- data[bar1, dv]
       mn2 <- data[bar2, dv]
@@ -413,7 +434,7 @@ print_ss_table <- function(x,align_val = "r") {
 
 # # SAVE YOUR SUMMARY STATS AS OBJECT: dq
 # dq <- summstat(mtcars, 'mpg', c('am', 'cyl'))
-# 
+#
 # # Bar plot
 # g <- ggplot(data=dq, aes(x=predictor, y=mpg)) +
 #     geom_bar(aes(fill=am),
@@ -426,14 +447,14 @@ print_ss_table <- function(x,align_val = "r") {
 #     ggtitle( paste0("Interaction of Transmission Type and Country of Origin (N = ", sum(dq$N), ")") ) +
 #     coord_cartesian(ylim=c(10, 30)) +
 #     report_bar_theme
-# 
+#
 # # FIRST RENAME YOUR ROWS FOR EASY STAT CALLING
 # # rename rows for easy stat calls
 # rownames(dq) <- dq$predictor
 # dq$order <- seq(1:nrow(dq))
-# 
+#
 # bs <- bar_compare(data = dq, bar1 = '0\n+\n4', bar2 = '0\n+\n8', dv = 'mpg')
-# 
+#
 # # automatically add horizontal bar
 #     pval_line <- annotate("errorbarh",              # useful shape for this task.
 #                           xmin=bs$bar1,             # start point
@@ -442,7 +463,7 @@ print_ss_table <- function(x,align_val = "r") {
 #                           y=bs$y,                   # height of your bar.
 #                           height=.5                 # height of error bar "fins"
 #     )
-# 
+#
 # # automatically add the annotation to the plot
 #     pval_text <- annotate("text",
 #                           # x-axis dim for text:
@@ -451,7 +472,7 @@ print_ss_table <- function(x,align_val = "r") {
 #                           label=paste0("p ", format_pval(bs$p)),
 #                           size=3
 #     )
-# 
+#
 # # add annotation to plot
 #     print(g + pval_line + pval_text)
 
@@ -463,7 +484,7 @@ multi_bar_compare <- function(graph = g, data = dq, dv = 'mid1_depend', order=NA
   bars <- matrix(bars,ncol=2,byrow=T)
   for(i in 1:nrow(bars)) {
     bs <- bar_compare(data = data, bar1 = bars[i,1], bar2 = bars[i,2], dv = dv, order=order)
-    
+
     # automatically add horizontal bar
     pval_line <- annotate("errorbarh",              # useful shape for this task.
                           xmin=bs$bar1,             # start point
@@ -472,7 +493,7 @@ multi_bar_compare <- function(graph = g, data = dq, dv = 'mid1_depend', order=NA
                           y=bs$y + y_offset[i],                   # height of your bar.
                           height= fins                 # height of error bar "fins"
     )
-    
+
     # automatically add the annotation to the plot
     pval_text <- annotate("text",
                           # x-axis dim for text:
@@ -481,13 +502,13 @@ multi_bar_compare <- function(graph = g, data = dq, dv = 'mid1_depend', order=NA
                           label=paste0("p ", format_pval(bs$p)),
                           size=3
     )
-    
+
     graph <- graph + pval_line + pval_text
     assign(graph_name, graph, envir = .GlobalEnv)
   }
-  
+
 }
-                                                  
-  
-  
+
+
+
 
