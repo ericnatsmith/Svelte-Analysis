@@ -27,7 +27,7 @@ mcsd <- function(data, x) {
 # # Example of using mcsd
 #   mtcars <- mcsd(mtcars, c("wt", "mpg"))
 #   names(mtcars)
-  
+
 
 moveme <- function(data, tomove, where = "last", ba = NULL) {
   temp <- setdiff(names(data), tomove)
@@ -74,24 +74,24 @@ smart_cast_all <- function(DF){
   return(DF)
 }
 
-#	quantile split; 
-#	e.g, split_quantiles =.5 is median split, c=(.25,.5,.75) quartile split 
+#	quantile split;
+#	e.g, split_quantiles =.5 is median split, c=(.25,.5,.75) quartile split
 qs <- function( vec, split_quantiles=c(.5), labels=c() ){
   split_values <- quantile( vec, split_quantiles, na.rm=TRUE )
   quantile_vec <- NA
-  
+
   #	if names for quantiles were not passed in, auto-generate
   if( length( labels ) == 0 ){
     labels[ 1 ] <- "above 0"
     for( i in 1:length(split_quantiles) ){
       labels[ i+1 ] <- paste("above", split_quantiles[i])
-    }		
+    }
   }else{
     if( length( labels ) != length( split_quantiles ) + 1 ){
       stop("There should be 1 fewer split quantiles than labels")
     }
   }
-  
+
   quantile_vec[ !is.na( vec ) ] <- labels[1]
   for( i in 1:length(split_quantiles) ){
     quantile_vec[ vec > split_values[i] ] <- labels[ i + 1]
@@ -153,7 +153,7 @@ make_scale_z <- function( DF , scale ){
     tryCatch( alpha	<- psych::alpha( DF[ , items ] ), error = function(e){
       anomalies[[scale]] <<- paste( "Scale",scale,"had errors!" )
     })
-    vec		<- escale(rowMeans( 
+    vec		<- escale(rowMeans(
       apply(DF[ , items ],2, function(x) {escale(x)}), na.rm=TRUE ))
   }
   return( list( vec=vec, alpha=alpha ) )
@@ -163,7 +163,7 @@ bm.med<-function(x,med,y) {
   summary(lm(y~x))$coefficients[2,1]->c;
   summary(lm(y~x))$coefficients[2,4]->sigc;
   summary(lm(med~x))$coefficients[2,1]->a;
-  summary(lm(med~x))$coefficients[2,2]->sa;  
+  summary(lm(med~x))$coefficients[2,2]->sa;
   summary(lm(med~x))$coefficients[2,4]->siga;
   summary(lm(y~x+med))$coefficients[2,1]->cprime;
   summary(lm(y~x+med))$coefficients[2,4]->sigcprime;
@@ -180,33 +180,33 @@ bm.med<-function(x,med,y) {
 }
 
 mediation_bootstrap = function(x, med, y, iterations = 1000, return = F){
-  
+
   # setup some parameters
   N = length(x)
   df = as.data.frame(cbind(x, med, y))
   boot_ab = vector(length=iterations) # set up empty vector for storage
-  
+
   # now go through a loop where we'll randomly sample, and get a a*b value
   for (i in 1:iterations){
     ind_boot = sample(c(1:N), N, replace=TRUE) # random indices
     df_boot = df[ind_boot,]
-    
+
     iter_a = lm(df_boot$med ~ df_boot$x)$coefficients[2] # coeff of x
     iter_b = lm(df_boot$y ~ df_boot$med + df_boot$x)$coefficients[2] # coeff of mediator
-    
+
     boot_ab[i] = iter_a * iter_b
   }
-  
+
   # create plot
   hist(boot_ab,main=paste("Bootstrapped a*b, with",iterations,"iterations"),col="red");
   abline(v=0, col='black', lty=2, lwd=2)
   abline(v=c(quantile(boot_ab,c(.025,.975))), col='blue', lty=3)
-  
+
   # Print results
   print("Bootstrap results:",quote=F);
   print(c(ab=mean(boot_ab)));
   print(quantile(boot_ab,c(.025,.975)))
-  
+
   if(return==T){
     return(boot_ab)
   }
@@ -215,7 +215,7 @@ mediation_bootstrap = function(x, med, y, iterations = 1000, return = F){
 
 
 
-# Create costom scales without consistent item coding 
+# Create costom scales without consistent item coding
 ## - creates new column and adds item information to scale_info
 
 scale_newcol <- function(df,scaleName,grepItems, same_scale = T) {
@@ -235,9 +235,9 @@ scale_newcol <- function(df,scaleName,grepItems, same_scale = T) {
   d[,paste0(scaleName,"_ms")] <<- qs( temp_vec, c(.5), c("Bottom","Top") )
   d[,paste0(scaleName,"_ts")] <<- qs( temp_vec, c(.33,.66), c("Bottom","Middle","Top") )
   d[,paste0(scaleName,"_z")] <<- escale( temp_vec )
-  
+
   print(paste0("Created column ", scaleName, " with ",n_items," items:"))
-  
+
   print(item_list)
 }
 
@@ -257,7 +257,7 @@ auto_scale <- function(scale_bases = NULL, suffix="_[0-9]") {
       d[,paste0(scale,"_z")] <<- escale( temp_vec )
       alphas[[scale]] <<- alpha(d[,items])
     } else{
-      anomalies[[scale]] <- "was empty"	
+      anomalies[[scale]] <- "was empty"
     }
   }
   assign("scale_info",scale_info)
@@ -271,10 +271,10 @@ merge_restarts <- function(df, id_col, early_id, late_id) {
   late_row <- df[[id_col]] == late_id
   df[early_row,early_missing] <- # Get missing of early row
     df[late_row,early_missing] # Replace with later of late row
-  
-  df <- df %>% 
-    filter_(paste0(id_col," != \'", late_id,"\'")) # delete later row 
-  
+
+  df <- df %>%
+    filter_(paste0(id_col," != \'", late_id,"\'")) # delete later row
+
   return(df)
 }
 
@@ -287,7 +287,7 @@ mutate_cond <- function(.data, condition, ..., envir = parent.frame()) {
 }
 
 ## Example
-# d <- d %>% 
+# d <- d %>%
 #   mutate_cond(id %in% list, # if id is in list
 #               id = paste0(id,"_dup")) # Do something to only those rows
 
@@ -347,5 +347,186 @@ mutate_cond <- function(.data, condition, ..., envir = parent.frame()) {
   #
   # # example
   # dp <- twowaycovar(data=mtcars, dv='mpg', c('am', 'cyl'), covar = 'vs'); dp
-  
-  
+
+
+identify_identifiable_columns <- function(df, threshold = 0.8) {
+  # Calculate the proportion of unique values in each column
+  unique_prop <- sapply(df, function(col) {
+    unique_count <- length(unique(col))
+    total_count <- length(col)
+    unique_count / total_count
+  })
+
+  # Identify columns with unique proportion above the threshold
+  identifiable_cols <- names(unique_prop[unique_prop > threshold])
+
+  # Return the identifiable columns
+  return(identifiable_cols)
+}
+
+deidentify_id <- function(id, salt) {
+  # Concatenate the ID and salt
+  salted_id <- paste0(id, salt)
+
+  # Hash the salted ID using the SHA-256 algorithm
+  hashed_id <- openssl::sha256(salted_id)
+
+  # Trim the hashed ID to 12 characters
+  trimmed_hashed_id <- substr(hashed_id, 1, 12)
+
+  # Return the hashed ID
+  return(trimmed_hashed_id)
+}
+
+
+get_proper_nouns <- function(df) {
+
+  proper_nouns <- c()
+
+  # Function to process a single text and extract proper nouns
+  process_text <- function(text) {
+    tokens <- udpipe_annotate(ud_model, x = text)
+    tokens_df <- as.data.frame(tokens)
+
+    proper_nouns_indices <- which(tokens_df$upos == "PROPN")
+    proper_nouns <<- c(proper_nouns, tokens_df$token[proper_nouns_indices])
+  }
+
+  # Apply the function to each column of the dataframe
+  for (col in colnames(df)) {
+    if (is.character(df[[col]])) {
+      text <- unlist(df[[col]])
+      process_text(text)
+    }
+  }
+
+  # Count the frequency of proper nouns
+  proper_nouns_freq <- table(proper_nouns)
+
+  # Sort proper nouns by frequency in descending order
+  proper_nouns_sorted <- sort(proper_nouns_freq, decreasing = TRUE)
+
+  return(proper_nouns_sorted)
+}
+
+
+remove_proper_nouns <- function(text, proper_nouns) {
+  # require(udpipe)
+  #
+  # if(!exists("ud_model", envir = environment(remove_proper_nouns))){ #if not already loaded
+  #   # Load the English model for udpipe
+  #   ud_model <- udpipe_download_model(language = "english")
+  #   ud_model <- udpipe_load_model(ud_model$file_model)
+  # }
+  # Tokenize the text using udpipe
+  if(!is.na(text)) {
+    tokens <- udpipe_annotate(ud_model, x = text)
+    tokens_df <- as.data.frame(tokens)
+    # Replace proper nouns with "[NAME]" and concatenate the remaining tokens
+    tokens_df$filtered_tokens <- ifelse(tokens_df$token %in% proper_nouns, "[NAME]", tokens_df$token)
+    # Replace multiple consecutive instances of "[NAME]" with just one "[NAME]"
+    tokens_df$filtered_tokens[is.na(tokens_df$filtered_tokens)] <- NULL
+    if(length(tokens_df$filtered_tokens) > 1) {
+      for (i in length(tokens_df$filtered_tokens):2) {
+        if (tokens_df$filtered_tokens[i] == "[NAME]" && tokens_df$filtered_tokens[i-1] == "[NAME]") {
+          tokens_df$filtered_tokens[i] <- NA
+        }
+      }
+    }
+    new_text <- gsub("\\s+\\.", ".", paste0(tokens_df$filtered_tokens[!is.na(tokens_df$filtered_tokens)], collapse = " "))
+    return(new_text)
+  } else (
+    return(text)
+  )
+}
+
+
+
+#
+#   new_text <-character()
+#   # Remove any trailing space before a period
+#   for(doc_N in unique(tokens_df$doc_id)) {
+#     new_text[1] <- tokens_df %>% filter(doc_id == doc_N) %>%
+#
+#
+identify_character_columns <- function(df) {
+  # Initialize an empty vector to store the open-response column names
+  open_response_cols <- c()
+  # Loop through each column in the data frame
+  for (col_name in names(df)) {
+    # Check if the column contains character strings using is.character()
+    if (is.character(df[[col_name]])) {
+      # If it does, add the column name to the list of open-response columns
+      open_response_cols <- c(open_response_cols, col_name)
+    }
+  }
+  # Return the list of open-response column names
+  return(open_response_cols)
+}
+
+
+
+
+find_potential_identifiers <- function(dataset, indirect_identifiers) {
+  # Initialize an empty list to store potential identifiers
+  potential_identifiers <- list()
+
+  # Convert dataset to a tibble
+  dataset <- as_tibble(dataset)
+
+  # Iterate over each indirect identifier
+  # Group the dataset by the current indirect identifier
+  grouped_data <- dataset %>%
+    group_by_at(vars(indirect_identifiers)) %>%
+    summarise(count = n(), .groups = "drop")
+
+  # Find groups with less than 5 individuals
+  potential_groups <- grouped_data[grouped_data$count < 5, ]
+
+  # Return the list of potential identifiers
+  return(potential_groups)
+}
+
+
+
+# # Sample dataset
+# # Sample dataset
+# dataset <- data.frame(
+#   Name = c("John", "Jane", "Alice", "Bob", "Mark", "Emily", "David", "Sarah", "Michael", "Jessica",
+#            "Daniel", "Olivia", "Matthew", "Sophia", "Andrew", "Ava", "William", "Emma", "James", "Mia",
+#            "Joseph", "Isabella", "Joshua", "Abigail", "Christopher", "Emily", "David", "Elizabeth", "Daniel",
+#            "Avery", "Benjamin", "Sofia", "Samuel", "Chloe", "Henry", "Ella", "Jacob", "Scarlett", "Mason",
+#            "Grace", "Ethan", "Victoria", "Alexander", "Zoe", "Emma", "Liam", "Emily", "Noah", "Ava", "Oliver",
+#            "Sophia", "Daniel", "Mia", "James", "Olivia", "Lucas", "Amelia", "Benjamin", "Charlotte", "Jacob",
+#            "Lily", "William", "Harper", "Alexander", "Evelyn", "Michael", "Madison", "Matthew", "Avery", "Joseph",
+#            "Ella", "Henry", "Scarlett", "David", "Chloe", "Christopher", "Victoria", "Andrew", "Zoe", "Joshua",
+#            "Grace", "Samuel", "Lily", "Ethan", "Charlotte", "Daniel", "Harper", "Mason", "Evelyn", "Jack"),
+#   Age = c(25, 30, 35, 40, 25, 35, 40, 45, 25, 35,
+#           50, 55, 50, 55, 50, 55, 60, 65, 60, 65,
+#           25, 30, 35, 40, 25, 35, 40, 45, 25, 35,
+#           50, 55, 50, 55, 50, 55, 60, 65, 60, 65,
+#           25, 30, 35, 40, 25, 35, 40, 45, 25, 35,
+#           50, 55, 50, 55, 50, 55, 60, 65, 60, 65,
+#           25, 30, 35, 40, 25, 35, 40, 45, 25, 35,
+#           50, 55, 50, 55, 50, 55, 60, 65, 60, 65,
+#           25, 30, 35, 40, 25, 35, 40, 45, 25, 35),
+#   Occupation = c("Engineer", "Doctor", "Lawyer", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer",
+#                  "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher",
+#                  "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer",
+#                  "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher",
+#                  "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer",
+#                  "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher",
+#                  "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer",
+#                  "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher",
+#                  "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer", "Doctor", "Teacher", "Engineer", "Lawyer")
+# )
+#
+# # table(dataset$Age,dataset$Occupation)
+#
+#
+# # Specify the indirect identifiers
+# indirect_identifiers <- c("Age", "Occupation")
+#
+# # Find potential indirect identifiers
+# potential_identifiers <- find_potential_identifiers(dataset, indirect_identifiers)
+#
