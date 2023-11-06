@@ -17,7 +17,7 @@ if(exists("RmdTesting")){
       RmdSetup = list(include = FALSE, warning = FALSE, message = FALSE),
       RmdInclude = list(include = TRUE, warning = FALSE, message = FALSE, echo = FALSE),
       RmdIncludeCode = list(include = TRUE, warning = FALSE, message = FALSE, echo = TRUE),
-      RmdCodeOnly = list(include = FALSE, warning = FALSE, message = FALSE, echo = TRUE),
+      RmdCodeOnly = list(warning = FALSE, message = FALSE, echo = TRUE, results = "hide",fig.show="hide"),
       RmdTable = list(include = TRUE, warning = FALSE, message = FALSE, echo = FALSE, results = "asis")
     )
   }
